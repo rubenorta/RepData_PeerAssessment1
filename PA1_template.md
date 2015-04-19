@@ -1,15 +1,6 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
-```{r load_libraries, echo=FALSE, results='hide',message=FALSE, warning=FALSE}
-library(dplyr)
-library(data.table)
-library(lattice) 
-```
+
 
 ## Loading and preprocessing the data
 
@@ -17,7 +8,8 @@ Show any code that is needed to
 
 1. Load the data (i.e. read.csv())
 2. Process/transform the data (if necessary) into a format suitable for your analysis
-```{r load_data}
+
+```r
 setwd('/home/ruben/coursera_ds/RepData_PeerAssessment1')
 activity <- read.csv('activity.csv',na.strings="NA")
 activity$date <- as.Date(activity$date, format="%Y-%m-%d")
@@ -30,13 +22,30 @@ For this part of the assignment, you can ignore the missing values in the datase
 1. Make a histogram of the total number of steps taken each day
 2. Calculate and report the mean and median total number of steps taken per day
 
-```{r mean_steps_per_day, echo=TRUE}
+
+```r
 steps_by_date <- aggregate(steps ~ date, data = activity, FUN = sum)
 hist(steps_by_date$steps, xlab="Steps", main="Number of steps taken each day")
+```
+
+![](PA1_template_files/figure-html/mean_steps_per_day-1.png) 
+
+```r
 # Calculate the mean of steps by date
 mean(steps_by_date$steps, na.rm=TRUE)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 # Calculate the median of steps by date
 median(steps_by_date$steps, na.rm=TRUE)
+```
+
+```
+## [1] 10765
 ```
 
 ## What is the average daily activity pattern?
@@ -45,11 +54,21 @@ median(steps_by_date$steps, na.rm=TRUE)
 
 2.Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
-```{r average_daily_activity}
+
+```r
 steps_by_interval <- aggregate(steps ~ interval, data = activity, FUN = mean)
 plot(steps_by_interval$steps,type='l',ylab='Number of Steps',xlab='Minutes Interval', main='Average Steps by Interval')
+```
+
+![](PA1_template_files/figure-html/average_daily_activity-1.png) 
+
+```r
 # Interval with the maxiumun steps
 steps_by_interval$interval[which.max(steps_by_interval$steps)]
+```
+
+```
+## [1] 835
 ```
 
 ## Imputing missing values
@@ -65,10 +84,17 @@ Note that there are a number of days/intervals where there are missing values (c
 
 4.Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
-```{r missig_values}
+
+```r
 # Number of rows with NA values
 sum(is.na(activity))
+```
 
+```
+## [1] 2304
+```
+
+```r
 # The strategy used to complete NA values is to fill with the mean of the interval
 clean_activity <- activity
 for (i in 1:nrow(clean_activity)) {
@@ -80,16 +106,33 @@ for (i in 1:nrow(clean_activity)) {
 
 steps_by_date_clean <- aggregate(steps ~ date, data = clean_activity, FUN = sum)
 hist(steps_by_date_clean$steps, xlab="Steps", main="Number of steps taken each day")
+```
+
+![](PA1_template_files/figure-html/missig_values-1.png) 
+
+```r
 # Calculate the mean of steps by date
 mean(steps_by_date_clean$steps, na.rm=TRUE)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 # Calculate the median of steps by date
 median(steps_by_date_clean$steps, na.rm=TRUE)
 ```
 
+```
+## [1] 10766.19
+```
+
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r weekdays_activity}
-# Add a new column for type of day weekend / weekday
+
+```r
 activity$day <- weekdays(activity$date)
+
 for (i in 1:nrow(activity)) {
   if ((activity[i,]$day == 'Sunday') | (activity[i,]$day == 'Saturday')) {
     activity[i,]$day <- 'Weekend'
@@ -98,7 +141,6 @@ for (i in 1:nrow(activity)) {
   }
 }
 
-# Aggregate data by type of day
 act <- aggregate(steps ~ interval + day, data = activity, FUN = mean)
 xyplot(steps ~ interval | day, 
            data = act,
@@ -107,3 +149,7 @@ xyplot(steps ~ interval | day,
            ylab = "Number of steps",
            layout=c(1,2))
 ```
+
+![](PA1_template_files/figure-html/weekdays_activity-1.png) 
+
+
